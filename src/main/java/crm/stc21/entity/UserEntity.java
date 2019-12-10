@@ -175,8 +175,8 @@ public class UserEntity
         return telegramUsername + ":" + "\n" +
                 "Имя пользователя=" + login + "\n" +
                 "Имя=" + firstName + "\n" +
-                "Фамилия=" + lastName + "\n" +
                 "Отчество=" + fatherName + "\n" +
+                "Фамилия=" + lastName + "\n" +
                 "email=" + email + "\n" +
                 "Создан=" + createdAt + "\n" +
                 "Статус=" + role.toString() + "\n" +
