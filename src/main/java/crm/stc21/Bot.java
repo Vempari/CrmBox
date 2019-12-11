@@ -1,32 +1,29 @@
 package crm.stc21;
 
-import crm.stc21.entity.IncomingBoxEntity;
-import crm.stc21.entity.TaskEntity;
+import crm.stc21.botComponent.InboxComponent;
+import crm.stc21.botComponent.TaskComponent;
+import crm.stc21.botComponent.UserComponent;
 import crm.stc21.entity.UserEntity;
-import crm.stc21.service.InboxService;
-import crm.stc21.service.TaskService;
-import crm.stc21.service.UserService;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
-import org.telegram.telegrambots.api.methods.send.SendDocument;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
-import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.io.File;
 import java.util.ArrayList;
 
 public class Bot extends TelegramLongPollingBot {
     ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-    UserService userService = new UserService();
-    TaskService taskService = new TaskService();
-    InboxService inboxService = new InboxService();
+    UserComponent userComponent = new UserComponent();
+    InboxComponent inboxComponent = new InboxComponent();
+    TaskComponent taskComponent = new TaskComponent();
     UserEntity currentUser;
+    String username = "";
+
 
     public static void main(String[] args) {
         ApiContextInitializer.init();
@@ -46,37 +43,66 @@ public class Bot extends TelegramLongPollingBot {
         replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setOneTimeKeyboard(true);
         mainMenu(keyboard, leftRow, rightRow);
-        StringBuilder result = new StringBuilder();
+        StringBuilder stringToOutput = new StringBuilder();
+
+//        if (text.matches("^[А-Я]{1}[а-я]{6} [а-я]{7}[:]{1} [0-9]{1,3}$")) {
+//
+//        }
         switch (text) {
+            //MAIN MENU
             case "Вернуться обратно":
                 mainMenu(keyboard, leftRow, rightRow);
                 return "Добро пожаловать в меню!";
             case "Посмотреть мои задачи":
-                result.append("Задачи: \n");
-                for (TaskEntity task : taskService.findAllTasks()) {
-                        result.append(task.toString()).append("\n");
-                }
-                mainMenu(keyboard, leftRow, rightRow);
-                return result.toString();
+                taskMenu(keyboard, leftRow, rightRow);
+                stringToOutput = taskComponent.showAllTasks(stringToOutput);
+                return stringToOutput.toString();
             case "Посмотреть информацию обо мне":
                 mainMenu(keyboard, leftRow, rightRow);
-                for (UserEntity entity : userService.findAllUsers()) {
-                    if (entity.getTelegramUsername() != null &&
-                            entity.getTelegramUsername().equals("@" + message.getFrom().getUserName())) {
-                        result.append(entity);
-                    }
-                }
-                return result.toString();
+                stringToOutput = userComponent.showInformationAboutUser(stringToOutput, username);
+                return stringToOutput.toString();
             case "Посмотреть канцелярию":
-                result.append("Входящая канцелярия: \n");
-                for (IncomingBoxEntity entity : inboxService.findAllInbox()) {
-                    result.append("\n").append(entity.toString());
-                }
-                mainMenu(keyboard, leftRow, rightRow);
-                return result.toString();
-
+                inboxMenu(keyboard, leftRow, rightRow);
+                stringToOutput = inboxComponent.showAllInbox(stringToOutput, userComponent.findAllUsers(), username);
+                return stringToOutput.toString();
+            //TASK MENU
+            case "Добавить задачу":
+                taskMenu(keyboard, leftRow, rightRow);
+            case "Редактировать задачу":
+                taskMenu(keyboard, leftRow, rightRow);
+            case "Удалить задачу":
+                taskMenu(keyboard, leftRow, rightRow);
+                stringToOutput = taskComponent.deleateTask(stringToOutput);
+                return stringToOutput.toString();
+                //USER MENU
+            //INBOX MENU
         }
         return "";
+    }
+
+    public void taskMenu(ArrayList<KeyboardRow> keyboard, KeyboardRow leftRow, KeyboardRow rightRow) {
+        keyboard.clear();
+        leftRow.clear();
+        rightRow.clear();
+        leftRow.add("Добавить задачу");
+        leftRow.add("Редактировать задачу");
+        rightRow.add("Удалить задачу");
+        rightRow.add("Вернуться обратно");
+        keyboard.add(leftRow);
+        keyboard.add(rightRow);
+        replyKeyboardMarkup.setKeyboard(keyboard);
+    }
+
+    public void inboxMenu(ArrayList<KeyboardRow> keyboard, KeyboardRow leftRow, KeyboardRow rightRow) {
+        keyboard.clear();
+        leftRow.clear();
+        rightRow.clear();
+        leftRow.add("Добавить входящее");
+        leftRow.add("Редактировать входящее");
+        rightRow.add("Удалить входящее");
+        keyboard.add(leftRow);
+        keyboard.add(rightRow);
+        replyKeyboardMarkup.setKeyboard(keyboard);
     }
 
     public void mainMenu(ArrayList<KeyboardRow> keyboard, KeyboardRow leftRow, KeyboardRow rightRow) {
@@ -95,12 +121,12 @@ public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update e) {
         e.getUpdateId();
         SendMessage sendMessage = new SendMessage().setChatId(e.getMessage().getChatId());
-        String username = e.getMessage().getFrom().getUserName();
+        username = e.getMessage().getFrom().getUserName();
         long chat_id = e.getMessage().getChatId();
         String text = e.getMessage().getText();
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
         boolean validation = false;
-        for (UserEntity user : userService.findAllUsers()) {
+        for (UserEntity user : userComponent.findAllUsers()) {
             if (user.getTelegramUsername()!= null && user.getTelegramUsername().equals("@" + username)) {
                 validation = true;
                 currentUser = user;
