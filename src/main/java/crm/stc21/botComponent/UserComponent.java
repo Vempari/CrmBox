@@ -1,5 +1,6 @@
 package crm.stc21.botComponent;
 
+import crm.stc21.entity.TaskEntity;
 import crm.stc21.entity.UserEntity;
 import crm.stc21.service.UserService;
 
@@ -19,6 +20,17 @@ public class UserComponent {
         return result;
     }
 
+    public StringBuilder showUserTasks (StringBuilder result, String username) {
+        for (UserEntity entity : userService.findAllUsers()) {
+            if (entity.getTelegramUsername() != null &&
+                    entity.getTelegramUsername().equals("@" + username)) {
+                    for (TaskEntity task : entity.getTasks()) {
+                        result.append(task).append("\n");
+                    }
+            }
+        }
+        return result;
+    }
     public List<UserEntity> findAllUsers() {
         return userService.findAllUsers();
     }

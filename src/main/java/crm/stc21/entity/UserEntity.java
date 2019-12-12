@@ -55,6 +55,17 @@ public class UserEntity
     @JoinColumn(name = "role_id")
     private RoleEntity role;
 
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
+    private List<TaskEntity> tasks;
+
+    public List<TaskEntity> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(List<TaskEntity> tasks) {
+        this.tasks = tasks;
+    }
+
     public UserEntity(String firstName,
                       String lastName,
                       String password,

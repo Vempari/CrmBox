@@ -1,5 +1,6 @@
 package crm.stc21.dao;
 
+import crm.stc21.entity.TaskEntity;
 import crm.stc21.entity.UserEntity;
 import crm.stc21.util.HibernateSessionFactoryUtil;
 import org.hibernate.Session;

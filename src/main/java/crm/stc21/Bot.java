@@ -45,70 +45,36 @@ public class Bot extends TelegramLongPollingBot {
         mainMenu(keyboard, leftRow, rightRow);
         StringBuilder stringToOutput = new StringBuilder();
 
-//        if (text.matches("^[А-Я]{1}[а-я]{6} [а-я]{7}[:]{1} [0-9]{1,3}$")) {
-//
-//        }
         switch (text) {
             //MAIN MENU
-            case "Вернуться обратно":
+            case "Посмотреть все задачи":
                 mainMenu(keyboard, leftRow, rightRow);
-                return "Добро пожаловать в меню!";
-            case "Посмотреть мои задачи":
-                taskMenu(keyboard, leftRow, rightRow);
                 stringToOutput = taskComponent.showAllTasks(stringToOutput);
+                return stringToOutput.toString();
+            case "Посмотреть мои задачи":
+                mainMenu(keyboard, leftRow, rightRow);
+                stringToOutput = userComponent.showUserTasks(stringToOutput, username);
                 return stringToOutput.toString();
             case "Посмотреть информацию обо мне":
                 mainMenu(keyboard, leftRow, rightRow);
                 stringToOutput = userComponent.showInformationAboutUser(stringToOutput, username);
                 return stringToOutput.toString();
             case "Посмотреть канцелярию":
-                inboxMenu(keyboard, leftRow, rightRow);
+                mainMenu(keyboard, leftRow, rightRow);
                 stringToOutput = inboxComponent.showAllInbox(stringToOutput, userComponent.findAllUsers(), username);
                 return stringToOutput.toString();
-            //TASK MENU
-            case "Добавить задачу":
-                taskMenu(keyboard, leftRow, rightRow);
-            case "Редактировать задачу":
-                taskMenu(keyboard, leftRow, rightRow);
-            case "Удалить задачу":
-                taskMenu(keyboard, leftRow, rightRow);
-                stringToOutput = taskComponent.deleateTask(stringToOutput);
-                return stringToOutput.toString();
-                //USER MENU
-            //INBOX MENU
         }
-        return "";
+        return "Пожалуйста, войдите в меню и нажмите на кнопку";
     }
 
-    public void taskMenu(ArrayList<KeyboardRow> keyboard, KeyboardRow leftRow, KeyboardRow rightRow) {
-        keyboard.clear();
-        leftRow.clear();
-        rightRow.clear();
-        leftRow.add("Добавить задачу");
-        leftRow.add("Редактировать задачу");
-        rightRow.add("Удалить задачу");
-        rightRow.add("Вернуться обратно");
-        keyboard.add(leftRow);
-        keyboard.add(rightRow);
-        replyKeyboardMarkup.setKeyboard(keyboard);
-    }
-
-    public void inboxMenu(ArrayList<KeyboardRow> keyboard, KeyboardRow leftRow, KeyboardRow rightRow) {
-        keyboard.clear();
-        leftRow.clear();
-        rightRow.clear();
-        leftRow.add("Добавить входящее");
-        leftRow.add("Редактировать входящее");
-        rightRow.add("Удалить входящее");
-        keyboard.add(leftRow);
-        keyboard.add(rightRow);
-        replyKeyboardMarkup.setKeyboard(keyboard);
-    }
 
     public void mainMenu(ArrayList<KeyboardRow> keyboard, KeyboardRow leftRow, KeyboardRow rightRow) {
         keyboard.clear();
         leftRow.clear();
         rightRow.clear();
+        if (currentUser.getRole().getId().equals(1L)) {
+            rightRow.add("Посмотреть все задачи");
+        }
         leftRow.add("Посмотреть мои задачи");
         leftRow.add("Посмотреть информацию обо мне");
         rightRow.add("Посмотреть канцелярию");
