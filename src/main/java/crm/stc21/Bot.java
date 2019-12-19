@@ -48,9 +48,17 @@ public class Bot extends TelegramLongPollingBot {
         switch (text) {
             //MAIN MENU
             case "Посмотреть все задачи":
-                mainMenu(keyboard, leftRow, rightRow);
-                stringToOutput = taskComponent.showAllTasks(stringToOutput);
-                return stringToOutput.toString();
+                if (currentUser.getRole().getId().equals(1L) || currentUser.getRole().getId().equals(2L)){
+                    mainMenu(keyboard, leftRow, rightRow);
+                    stringToOutput = taskComponent.showAllTasks(stringToOutput);
+                    return stringToOutput.toString();
+                } else return "Пожалуйста, войдите в меню и нажмите на кнопку";
+            case "Посмотреть входящую канцелярию":
+                if (currentUser.getRole().getId().equals(1L) || currentUser.getRole().getId().equals(2L)) {
+                    mainMenu(keyboard, leftRow, rightRow);
+                    stringToOutput = inboxComponent.showAllInbox(stringToOutput);
+                    return stringToOutput.toString();
+                } else return "Пожалуйста, войдите в меню и нажмите на кнопку";
             case "Посмотреть мои задачи":
                 mainMenu(keyboard, leftRow, rightRow);
                 stringToOutput = userComponent.showUserTasks(stringToOutput, username);
@@ -58,10 +66,6 @@ public class Bot extends TelegramLongPollingBot {
             case "Посмотреть информацию обо мне":
                 mainMenu(keyboard, leftRow, rightRow);
                 stringToOutput = userComponent.showInformationAboutUser(stringToOutput, username);
-                return stringToOutput.toString();
-            case "Посмотреть канцелярию":
-                mainMenu(keyboard, leftRow, rightRow);
-                stringToOutput = inboxComponent.showAllInbox(stringToOutput, userComponent.findAllUsers(), username);
                 return stringToOutput.toString();
         }
         return "Пожалуйста, войдите в меню и нажмите на кнопку";
@@ -72,12 +76,12 @@ public class Bot extends TelegramLongPollingBot {
         keyboard.clear();
         leftRow.clear();
         rightRow.clear();
-        if (currentUser.getRole().getId().equals(1L)) {
+        if (currentUser.getRole().getId().equals(1L) || currentUser.getRole().getId().equals(2L)) {
             rightRow.add("Посмотреть все задачи");
+            leftRow.add("Посмотреть входящую канцелярию");
         }
         leftRow.add("Посмотреть мои задачи");
-        leftRow.add("Посмотреть информацию обо мне");
-        rightRow.add("Посмотреть канцелярию");
+        rightRow.add("Посмотреть информацию обо мне");
         keyboard.add(leftRow);
         keyboard.add(rightRow);
         replyKeyboardMarkup.setKeyboard(keyboard);

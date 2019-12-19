@@ -25,10 +25,13 @@ public class UserComponent {
             if (entity.getTelegramUsername() != null &&
                     entity.getTelegramUsername().equals("@" + username)) {
                     for (TaskEntity task : entity.getTasks()) {
-                        result.append(task).append("\n");
+                        if (!task.getTaskStatus().getId().equals(1L))  {
+                            result.append(task).append("\n");
+                        }
                     }
             }
         }
+        if (result.toString().equals("")) result.append("У вас нет задач");
         return result;
     }
     public List<UserEntity> findAllUsers() {
